@@ -58,3 +58,7 @@ required-features = ["image/png"]
 [[example]]
 name = "extracting_pngs"
 required-features = ["image/png"]
+
+[[example]]
+name = "extract_cash_items"
+required-features = ["json", "image/png"]
