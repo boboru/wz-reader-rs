@@ -16,6 +16,8 @@ struct CashItem {
 
 // usage:
 //   cargo run --example extract_cash_items --features "json,image/png" -- "path/to/Base.wz" "./output/cash_items"
+//   cargo run --example extract_cash_items --features "json,image/png" -- "C:\Program Files\gamania Games\MapleStory\Data\Base\Base.wz" "./output/cash_items"
+
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let base_path = args.get(1).expect("missing base path");
