@@ -18,9 +18,16 @@ fn main() {
     let save_image_fn = |node: &WzNodeArc| {
         let node_read = node.read().unwrap();
         if node_read.try_as_png().is_some() {
+            let full_path = node_read.get_full_path();
+
+            /* 只處理路徑包含 info/icon 的節點 */
+            if !full_path.contains("info/icon") {
+                return;
+            }
+
             let image = get_image(&node).unwrap();
             /* the name of image is easily got conflect */
-            let save_name = node_read.get_full_path().replace("/", "-");
+            let save_name = full_path.replace("/", "-");
             /* resolving image will auto resolve image from _inlink and _outlink */
             image.save(format!("{out_str}/{save_name}.png")).unwrap();
         }

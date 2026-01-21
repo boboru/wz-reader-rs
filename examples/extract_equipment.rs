@@ -118,9 +118,14 @@ fn find_and_export_images(
         walk_node(&character_node, true, &|node| {
             let node_read = node.read().unwrap();
 
-            // 找到 PNG 圖片節點
+            // 找到 PNG 圖片節點，且路徑包含 info/icon
             if node_read.try_as_png().is_some() {
                 let full_path = node_read.get_full_path();
+
+                // 只處理路徑包含 info/icon 的節點
+                if !full_path.contains("info/icon") {
+                    return;
+                }
 
                 let mut items = equipment_mutex.lock().unwrap();
 
