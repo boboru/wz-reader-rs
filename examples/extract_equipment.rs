@@ -110,9 +110,10 @@ fn find_and_export_images(
         println!("  搜尋 Character/...");
 
         // 遍歷 Character 下的所有子目錄
-        let character_read = character_node.read().unwrap();
-        character_read.parse(&character_node).ok();
-        drop(character_read);
+        {
+            let mut character_write = character_node.write().unwrap();
+            character_write.parse(&character_node).ok();
+        }
 
         walk_node(&character_node, true, &|node| {
             let node_read = node.read().unwrap();
