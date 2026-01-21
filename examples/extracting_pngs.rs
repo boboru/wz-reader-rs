@@ -14,6 +14,7 @@ fn main() {
         .expect("Need method (single/base/folder) as 1st arg");
     let path = args.next().expect("Need path to wz file as 2nd arg");
     let out = args.next().expect("Need out dir as 3rd arg");
+    let out_str = out.to_string_lossy();
     let save_image_fn = |node: &WzNodeArc| {
         let node_read = node.read().unwrap();
         if node_read.try_as_png().is_some() {
@@ -21,7 +22,7 @@ fn main() {
             /* the name of image is easily got conflect */
             let save_name = node_read.get_full_path().replace("/", "-");
             /* resolving image will auto resolve image from _inlink and _outlink */
-            image.save(format!("{out}/{save_name}.png")).unwrap();
+            image.save(format!("{out_str}/{save_name}.png")).unwrap();
         }
     };
     match method.as_encoded_bytes() {
