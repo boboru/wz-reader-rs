@@ -1,4 +1,3 @@
-use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
@@ -20,7 +19,8 @@ struct CashItem {
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let base_path = args.get(1).expect("missing base path");
-    let output_dir = args.get(2).unwrap_or(&"./output/cash_items".to_string());
+    let default_output = "./output/cash_items".to_string();
+    let output_dir = args.get(2).unwrap_or(&default_output);
 
     println!("載入 Base.wz...");
     let base_node = resolve_base(&base_path, None).unwrap();
@@ -78,11 +78,12 @@ fn extract_cash_items(base_node: &WzNodeArc) -> HashMap<String, CashItem> {
 
             if let Some(name_node) = node_read.at("name") {
                 if let Ok(name) = string::resolve_string_from_node(&name_node) {
+                    let id_string = id.to_string();
                     let mut items = cash_items.lock().unwrap();
                     items.insert(
-                        id.clone(),
+                        id_string.clone(),
                         CashItem {
-                            id,
+                            id: id_string,
                             name,
                             image_path: None,
                         },
@@ -97,7 +98,7 @@ fn extract_cash_items(base_node: &WzNodeArc) -> HashMap<String, CashItem> {
 
 fn find_and_export_images(
     base_node: &WzNodeArc,
-    mut cash_items: HashMap<String, CashItem>,
+    cash_items: HashMap<String, CashItem>,
     output_dir: &str,
 ) -> HashMap<String, CashItem> {
     let cash_items_mutex = Mutex::new(cash_items);
