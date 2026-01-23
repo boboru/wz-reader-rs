@@ -1,12 +1,14 @@
 use wz_reader::property::get_image;
 use wz_reader::util::{resolve_base, resolve_root_wz_file_dir, walk_node};
 use wz_reader::{WzNode, WzNodeArc, WzNodeCast};
-
+use std::fs;
+use std::path::Path;
 // usage:
 //   cargo run --example extracting_png --features "image/png" -- "path/to/Base.wz" "output/path"
 //   cargo run --example extracting_png --features "image/png" -- single "D:\Path\To\Base.wz" ".\output"
 //   cargo run --example extracting_png --features "image/png" -- base "D:\Path\To\Base.wz" ".\output"
 //   cargo run --example extracting_png --features "image/png" -- folder "D:\Path\To\Base.wz" ".\output"
+
 fn main() {
     let mut args = std::env::args_os().skip(1);
     let method = args
@@ -14,14 +16,26 @@ fn main() {
         .expect("Need method (single/base/folder) as 1st arg");
     let path = args.next().expect("Need path to wz file as 2nd arg");
     let out = args.next().expect("Need out dir as 3rd arg");
-    let out_str = out.to_string_lossy();
+
+    let out_path = Path::new(&out);
+
+    if let Err(e) = fs::create_dir_all(out_path) {
+        eprintln!(
+            "Failed to create output directory {}: {}",
+            out_path.display(),
+            e
+        );
+        std::process::exit(1);
+    }
+
+    let out_str = out_path.to_string_lossy();
     let save_image_fn = |node: &WzNodeArc| {
         let node_read = node.read().unwrap();
         if node_read.try_as_png().is_some() {
             let full_path = node_read.get_full_path();
 
-            /* 只處理路徑包含 info/icon 的節點 */
-            if !full_path.contains("info/icon") {
+            /* handle nodes including "info/icon" and "_Canvas" */
+            if !(full_path.contains("info/icon") && full_path.contains("_Canvas")) {
                 return;
             }
 
